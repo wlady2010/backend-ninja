@@ -1,0 +1,14 @@
+spring:
+  banner:
+    location: classpath:banner/banner.txt
+  datasource:
+    url: jdbc:postgres://mnlilsenjxcnsi:ca769ab088ec5abcf6fd0636d19787fadf33fac8d3fe6304bb5971748e7fef8c@ec2-34-202-5-87.compute-1.amazonaws.com:5432/d6rr4d3a0io4nh
+    username: mnlilsenjxcnsi
+    password: ca769ab088ec5abcf6fd0636d19787fadf33fac8d3fe6304bb5971748e7fef8c
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update 
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect

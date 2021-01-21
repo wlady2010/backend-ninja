@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Control COVID CRUD Contactos</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js"></script>
+
+<!-- Custom styles for this template -->
+<link href="#" th:href="@{/css/style.css}" rel="stylesheet" />
+
+<link href="#" th:href="@{/css/contacts.css}" rel="stylesheet" />
+
+<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css'	rel='stylesheet' />
+<script	src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet"	href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"	type="text/css" />
+<script	src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+<script	src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+</head>
+<body>
+	<style>
+		.coordinates {
+			background: rgba(0, 0, 0, 0.5);
+			color: #fff;
+			position: absolute;
+			bottom: 40px;
+			left: 10px;
+			padding: 5px 10px;
+			margin: 0;
+			font-size: 11px;
+			line-height: 18px;
+			border-radius: 3px;
+			display: none;
+		}
+	</style>
+
+	<div class="container">
+
+		<h3 style="text-align: center">Registro de persona con COVID</h3>
+		<form action="#" th:action="@{/contacts/addContact}"
+			th:object="${contactModel}" method="post">
+			<input type="hidden" th:field=*{id}></input> <input type="hidden"
+				th:field="*{latitude}" th:value="${latitude}"> <input
+				type="hidden" th:field="*{longitude}" th:value="${longitude}">
+
+			<div class="form-group row">
+				<div class="col-md-2">
+					<label for="*{ci}">Cédula Identidad:</label> <input type="text"
+						class="form-control" placeholder="Cédula Identidad" maxlength="10"
+						th:field="*{ci}" th:value="${ci}">
+					<p th:if="${#fields.hasErrors('ci')}" th:errors="*{ci}">Cédula
+						con error</p>
+				</div>
+				<div class="col-md-5">
+					<label for="${firstName}">Nombre:</label> <input type="text"
+						class="form-control" placeholder="Nombre" th:field="*{firstName}"
+						th:value="${firstName}">
+					<p th:if="${#fields.hasErrors('firstName')}"
+						th:errors="*{firstName}">Nombre con error</p>
+				</div>
+				<div class="col-md-5">
+					<label for="*{lastName}">Apellido:</label> <input type="text"
+						class="form-control" placeholder="Apellido"
+						th:field="*{lastName}" th:value="${lastName}">
+					<p th:if="${#fields.hasErrors('lastName')}"
+						th:errors="*{lastName}">Apellido con error</p>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-md-3">
+					<label for="${age}">Edad:</label> <input type="text"
+						class="form-control" placeholder="Edad" th:field="*{age}"
+						th:value="${age}">
+					<p th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Edad
+						con error</p>
+				</div>
+				<div class="col-md-3">
+					<label for="${bloodType}">Tipo de sangre:</label> <input
+						type="text" class="form-control" placeholder="Tipo de sangre"
+						th:field="*{bloodType}" th:value="${bloodType}">
+				</div>
+				<div class="col-md-3">
+					<label for="${telephone}">Teléfono:</label> <input type="text"
+						class="form-control" placeholder="Teléfono" maxlength="9"
+						th:field="*{telephone}" th:value="${telephone}">
+					<p th:if="${#fields.hasErrors('telephone')}"
+						th:errors="*{telephone}">Edad con error</p>
+				</div>
+				<div class="col-md-3">
+					<label for="${cellphone}">Celular:</label> <input type="text"
+						class="form-control" placeholder="Celular" maxlength="10"
+						th:field="*{cellphone}" th:value="${cellphone}">
+					<p th:if="${#fields.hasErrors('cellphone')}"
+						th:errors="*{cellphone}">Edad con error</p>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-md-3">
+					<label for="${city}">Ciudad:</label> <input type="text"
+						class="form-control" th:field="*{city}" th:value="${city}"
+						placeholder="Quito">
+				</div>
+				<div class="col-md-6">
+					<label for="${address}">Dirección</label> <input type="text"
+						class="form-control" th:field="*{address}" th:value="${address}"
+						placeholder="1234 Calle Principal">
+				</div>
+				<div class="col-md-3">
+					<label for="${confinementDays}">Dias confinamiento:</label> <input type="text"
+						class="form-control" placeholder="Dias confinamiento" th:field="*{confinementDays}"
+						th:value="${confinementDays}">
+					<p th:if="${#fields.hasErrors('confinementDays')}" th:errors="*{age}">Dias confinamiento con error</p>
+				</div>
+			</div>
+
+			<div id='map'
+				style='text-align: center; with: 600px; height: 400px;'></div>
+			<pre id="coordinates" class="coordinates"></pre>
+			<br />
+			<button type="submit" class="btn btn-primary btn-lg btn-block"
+				onclick="gfg_Run()">
+				<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>Aceptar
+			</button>
+		</form>
+
+		<a href="#" th:href="@{/contacts/cancel}">
+			<button class="btn btn-danger btn-lg btn-block" type="submit">
+				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				Cancelar
+			</button>
+		</a>
+
+	</div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var coordinates = document.getElementById('coordinates');
+		let latitude = /*[[${contactModel.latitude}]]*/"Test";
+		let longitude = /*[[${contactModel.longitude}]]*/"Test";
+
+		if (latitude == null || longitude == null) {
+			latitude = '-0.17629413961721996';
+			longitude = '-78.47105937349755';
+			var inputLatitude = document.getElementById("latitude");
+			inputLatitude.setAttribute('value', latitude);
+			var inputLongitude = document.getElementById("longitude");
+			inputLongitude.setAttribute('value', longitude);
+		}
+		
+		mapboxgl.accessToken = 'pk.eyJ1IjoiZWRpYXp1Y2UiLCJhIjoiY2tpOXB1dmtkMDNmdDJycDZ0cWw5NHAwMyJ9.rZNUmdToJ7-nS5dFkM6FVQ';
+		var map = new mapboxgl.Map({
+			container : 'map',
+			style : 'mapbox://styles/mapbox/streets-v11',
+			center : [ longitude, latitude ],
+			zoom : 13
+		});
+
+		var marker = new mapboxgl.Marker({draggable: true})
+				.setLngLat([ longitude, latitude ])
+				.addTo(map);
+		
+		function onDragEnd() {
+			var lngLat = marker.getLngLat();
+			coordinates.style.display = 'block';
+			coordinates.innerHTML =
+			'Longitude: ' + lngLat.lng + '<br />Latitude: ' + lngLat.lat;
+			var inputLatitude = document.getElementById("latitude");
+			inputLatitude.setAttribute('value', lngLat.lat);
+			var inputLongitude = document.getElementById("longitude");
+			inputLongitude.setAttribute('value', lngLat.lng);
+			}
+			 
+		marker.on('dragend', onDragEnd);
+
+		function gfg_Run() {
+			var inputLatitude = document.getElementById("latitude");
+			var inputLongitude = document.getElementById("longitude");
+			if (inputLatitude.value == null || inputLongitude.value == null) {
+				inputLatitude.setAttribute('value', '-0.17629413961721996');
+				inputLongitude.setAttribute('value', '-78.47105937349755');
+			}
+		}
+		
+		
+	    var coordinatesGeocoder = function (query) {
+	        // match anything which looks like a decimal degrees coordinate pair
+	        var matches = query.match(
+	            /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
+	        );
+	        if (!matches) {
+	            return null;
+	        }
+
+	        function coordinateFeature(lng, lat) {
+	            return {
+	                center: [lng, lat],
+	                geometry: {
+	                    type: 'Point',
+	                    coordinates: [lng, lat]
+	                },
+	                place_name: 'Lat: ' + lat + ' Lng: ' + lng,
+	                place_type: ['coordinate'],
+	                properties: {},
+	                type: 'Feature'
+	            };
+	        }
+
+	        var coord1 = Number(matches[1]);
+	        var coord2 = Number(matches[2]);
+	        var geocodes = [];
+
+	        if (coord1 < -90 || coord1 > 90) {
+	            // must be lng, lat
+	            geocodes.push(coordinateFeature(coord1, coord2));
+	        }
+
+	        if (coord2 < -90 || coord2 > 90) {
+	            // must be lat, lng
+	            geocodes.push(coordinateFeature(coord2, coord1));
+	        }
+
+	        if (geocodes.length === 0) {
+	            // else could be either lng, lat or lat, lng
+	            geocodes.push(coordinateFeature(coord1, coord2));
+	            geocodes.push(coordinateFeature(coord2, coord1));
+	        }
+
+	        return geocodes;
+	    };
+
+	    map.addControl(
+	        new MapboxGeocoder({
+	            accessToken: mapboxgl.accessToken,
+	            localGeocoder: coordinatesGeocoder,
+	            zoom: 13,
+	            placeholder: '-78.500, -0.273',
+	            mapboxgl: mapboxgl
+	        })
+	    );
+
+		/*]]>*/
+	</script>
+</body>
+</html>
